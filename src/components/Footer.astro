@@ -1,0 +1,167 @@
+---
+import Icon from './Icon.astro';
+import Logo from './Logo.astro';
+import LanguageSwitcher from './LanguageSwitcher.astro';
+import { getUi, type Lang } from '../i18n/ui';
+import { telHref, whatsappHref } from '../lib/format';
+import type { SiteSettings } from '../lib/content';
+
+interface Props {
+  lang: Lang;
+  settings: SiteSettings;
+}
+
+const { lang, settings } = Astro.props;
+const t = getUi(lang);
+const wa = settings.whatsapp;
+const showWhatsapp = wa.enabled && !!wa.number;
+
+// "Services" and "Why Us" both live in the "What we do" section, so they point at two spots inside it.
+const links = [
+  { href: '#services', label: t.nav.services },
+  { href: '#why-us', label: t.nav.whyUs },
+  { href: '#reviews', label: t.nav.reviews },
+  { href: '#service-area', label: t.nav.serviceArea },
+  { href: '#contact', label: t.nav.contact },
+];
+
+// Built into the page when the site builds, so it rolls over each January on the next rebuild.
+const year = new Date().getFullYear();
+---
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer__top">
+      <div class="footer__brand">
+        <div class="footer__logo"><Logo lang={lang} /></div>
+        <p class="footer__tagline">{settings.footerTagline}</p>
+      </div>
+
+      <nav class="footer__nav" aria-label={t.footer.nav}>
+        <ul>
+          {links.map((link) => <li><a href={link.href}>{link.label}</a></li>)}
+        </ul>
+      </nav>
+
+      <div class="footer__actions">
+        <div class="footer__buttons">
+          <a class="btn btn--light" href={telHref(settings.phone)}>
+            <Icon name="phone" />
+            {t.actions.callNow}
+          </a>
+          {
+            showWhatsapp && (
+              <a
+                class="btn btn--whatsapp"
+                href={whatsappHref(wa.number!, wa.message ?? undefined)}
+                target="_blank"
+                rel="noopener"
+              >
+                <Icon name="whatsapp" />
+                {t.actions.whatsapp}
+              </a>
+            )
+          }
+        </div>
+        <LanguageSwitcher lang={lang} />
+      </div>
+    </div>
+
+    <p class="footer__legal">© {year} Forge Air. {t.footer.rights}</p>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    background: var(--color-navy-900);
+    color: var(--color-on-dark);
+    padding-block: 4rem 2.5rem;
+  }
+
+  /* Mobile first: everything stacked and left-aligned. */
+  .footer__top {
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+  }
+
+  .footer__logo :global(.logo) {
+    width: 13.5rem;
+  }
+  .footer__tagline {
+    margin-top: 0.75rem;
+    font-size: 1.0625rem;
+    color: var(--color-on-dark-soft);
+  }
+
+  .footer__nav a {
+    display: inline-block;
+    font-size: 1.0625rem;
+    line-height: 1.65;
+    transition: color var(--transition);
+  }
+  .footer__nav a:hover {
+    color: var(--color-blue-400);
+  }
+
+  .footer__actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  .footer__buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .footer__legal {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgb(255 255 255 / 0.15);
+    font-size: 1rem;
+    color: var(--color-on-dark-soft);
+  }
+
+  /* 576px+: logo on its own row, links left, buttons right. */
+  @media (min-width: 576px) {
+    .footer__top {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: start;
+    }
+    .footer__brand {
+      grid-column: 1 / -1;
+    }
+  }
+
+  /* 700px+: logo, links and buttons in one row, spaced evenly. */
+  @media (min-width: 700px) {
+    .footer {
+      padding-block: 6.75rem 4rem;
+    }
+    .footer__top {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 2rem;
+    }
+    .footer__actions,
+    .footer__buttons {
+      align-items: flex-end;
+    }
+    .footer__legal {
+      margin-top: 2rem;
+    }
+  }
+
+  /* 960px+: the two buttons sit side by side. */
+  @media (min-width: 960px) {
+    .footer__buttons {
+      flex-direction: row;
+    }
+  }
+</style>

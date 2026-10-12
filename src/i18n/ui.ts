@@ -13,6 +13,7 @@ const en = {
   },
   nav: {
     label: 'Main',
+    services: 'Services',
     whyUs: 'Why Us',
     serviceArea: 'Service Area',
     reviews: 'Reviews',
@@ -56,6 +57,10 @@ const en = {
       phone: 'Enter a valid phone number.',
     },
   },
+  footer: {
+    nav: 'Footer',
+    rights: 'All rights reserved.',
+  },
   reviews: {
     stars: (n: number) => `${n} out of 5 stars`,
   },
@@ -67,6 +72,7 @@ const es: typeof en = {
   },
   nav: {
     label: 'Principal',
+    services: 'Servicios',
     whyUs: 'Por qué nosotros',
     serviceArea: 'Zona de servicio',
     reviews: 'Reseñas',
@@ -108,6 +114,10 @@ const es: typeof en = {
       email: 'Ingrese un correo electrónico válido.',
       phone: 'Ingrese un número de teléfono válido.',
     },
+  },
+  footer: {
+    nav: 'Pie de página',
+    rights: 'Todos los derechos reservados.',
   },
   reviews: {
     stars: (n: number) => `${n} de 5 estrellas`,

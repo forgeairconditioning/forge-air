@@ -125,8 +125,21 @@ a {
   background: var(--color-blue-700);
 }
 
+.btn--light {
+  background: var(--color-white);
+  color: var(--color-phone-link);
+}
+
+.btn--light:hover {
+  background: var(--color-sky-100);
+}
+
 .btn--whatsapp {
   background: var(--color-whatsapp);
+}
+
+.btn--whatsapp .icon {
+  color: var(--color-whatsapp-icon);
 }
 
 .btn--whatsapp:hover {

@@ -7,6 +7,7 @@ import ServiceArea from '../../components/ServiceArea.astro';
 import Gallery from '../../components/Gallery.astro';
 import Testimonials from '../../components/Testimonials.astro';
 import Contact from '../../components/Contact.astro';
+import Footer from '../../components/Footer.astro';
 import { locales, getUi, type Lang } from '../../i18n/ui';
 import { getSiteSettings, getHero, getWhatWeDo, getServiceArea, getGallery, getTestimonials, getContact } from '../../lib/content';
 
@@ -39,4 +40,5 @@ const [settings, hero, whatWeDo, serviceArea, gallery, testimonials, contact] = 
     <Testimonials content={testimonials} lang={lang} />
     <Contact content={contact} settings={settings} lang={lang} />
   </main>
+  <Footer lang={lang} settings={settings} />
 </Layout>
