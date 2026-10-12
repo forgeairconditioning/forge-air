@@ -1,0 +1,155 @@
+---
+import Icon from './Icon.astro';
+import SectionHeader from './SectionHeader.astro';
+import { sanityImg } from '../lib/format';
+import type { WhatWeDo } from '../lib/content';
+
+interface Props {
+  content: WhatWeDo;
+}
+
+const { content } = Astro.props;
+const { image } = content;
+---
+
+<section class="what" id="why-us" aria-labelledby="what-title">
+  <div class="container">
+    <SectionHeader
+      eyebrow={content.eyebrow}
+      heading={content.heading}
+      accentWord={content.accentWord}
+      accentEffect="aurora"
+      intro={content.intro}
+      titleId="what-title"
+    />
+
+    <div class="what__body" id="services">
+      {/* Decorative: the services text already says everything the picture does. */}
+      <img
+        class="what__image"
+        src={sanityImg(image.url, 800)}
+        srcset={`${sanityImg(image.url, 400)} 400w, ${sanityImg(image.url, 800)} 800w`}
+        sizes="(min-width: 1024px) 25rem, min(100vw - 3rem, 25rem)"
+        width={image.width}
+        height={image.height}
+        alt=""
+        loading="lazy"
+        decoding="async"
+      />
+      <ul class="what__list">
+        {
+          content.items.map((item) => (
+            <li class="service">
+              <span class="service__icon">
+                <Icon name={item.icon} />
+              </span>
+              <h3 class="service__title">{item.title}</h3>
+              <p class="service__text">{item.description}</p>
+            </li>
+          ))
+        }
+      </ul>
+
+    </div>
+  </div>
+</section>
+
+<style>
+  .what {
+    background: var(--color-surface);
+    padding-block: clamp(3.5rem, 2rem + 4vw, 5rem) clamp(3.5rem, 2rem + 4vw, 5.5rem);
+  }
+
+  /* ---- Mobile first: image on top (it comes first in the markup), services below ---- */
+  .what__body {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    margin-top: 1.25rem;
+  }
+
+  .what__image {
+    width: 100%;
+    max-width: 25rem;
+    height: auto;
+  }
+
+  .service {
+    padding-block: 1.25rem;
+    border-bottom: 1px solid rgb(0 0 0 / 0.1);
+  }
+  .service:first-child {
+    padding-top: 0;
+  }
+  .service:last-child {
+    border-bottom: 0;
+  }
+  .service__icon {
+    display: block;
+    font-size: 1.5rem;
+    color: var(--color-blue-500);
+  }
+  .service__title {
+    margin-top: 0.6rem;
+    font-size: 1.125rem; /* stays above the paragraph (1rem) so the hierarchy holds */
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    line-height: 1.2;
+    color: var(--color-text-strong);
+  }
+  .service__text {
+    margin-top: 0.3rem;
+    color: var(--color-text-body);
+  }
+
+  /* ---- 576px+: image first, services in a 2 x 2 grid with top rules ---- */
+  @media (min-width: 576px) {
+    .what__list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      column-gap: 2.5rem;
+    }
+    .service,
+    .service:first-child,
+    .service:last-child {
+      padding-block: 1.25rem;
+      border-top: 1px solid rgb(0 0 0 / 0.1);
+      border-bottom: 0;
+    }
+    /* First row (AC Repair, AC Installation): no rule above it. */
+    .service:nth-child(-n + 2) {
+      border-top: 0;
+    }
+  }
+
+  /* ---- 1024px+: services left, thermostat right ---- */
+  @media (min-width: 1024px) {
+    .what__body {
+      margin-top: 3rem;
+      flex-direction: row-reverse; /* image is first in the markup, so reverse puts it on the right */
+      align-items: center;
+      justify-content: space-between;
+      gap: 3rem;
+    }
+    .what__list {
+      display: block;
+      flex: 1 1 0;
+      max-width: 37rem;
+      /* Start the list a touch above the image's center, like the frame. */
+      align-self: flex-start;
+    }
+    .service,
+    .service:first-child,
+    .service:last-child {
+      border-top: 0;
+      border-bottom: 1px solid rgb(0 0 0 / 0.1);
+    }
+    .service:last-child {
+      border-bottom: 0;
+    }
+    .what__image {
+      flex: none;
+      width: 25rem;
+    }
+  }
+</style>

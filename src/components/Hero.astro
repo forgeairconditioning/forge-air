@@ -1,0 +1,146 @@
+---
+import Icon from './Icon.astro';
+import { getUi, type Lang } from '../i18n/ui';
+import { telHref } from '../lib/format';
+import type { Hero, SiteSettings } from '../lib/content';
+
+interface Props {
+  lang: Lang;
+  hero: Hero;
+  settings: SiteSettings;
+}
+
+const { hero, settings } = Astro.props;
+---
+
+<section class="hero" id="hero">
+  <div class="container hero__content">
+    <ul class="hero__chips">
+      {hero.chips.map((chip) => <li class="chip">{chip}</li>)}
+    </ul>
+
+    <h1 class="hero__title">
+      <span class="hero__line">{hero.headlineLine1}</span>
+      <span class="hero__line hero__line--accent">{hero.headlineLine2}</span>
+    </h1>
+
+    <p class="hero__tagline">{hero.tagline}</p>
+    <p class="hero__description">{hero.description}</p>
+
+    <a class="btn hero__cta" href={telHref(settings.phone)}>
+      <Icon name="phone" />
+      {settings.callLabel}
+    </a>
+  </div>
+</section>
+
+<style>
+  .hero {
+    --focus-ring: var(--color-blue-400);
+    background: radial-gradient(
+      ellipse 70% 90% at 50% 55%,
+      var(--color-hero-glow) 0%,
+      var(--color-ink-900) 100%
+    );
+    padding-top: clamp(7.5rem, 5rem + 8vw, 11.75rem);
+    padding-bottom: clamp(2rem, 1rem + 5vw, 5.75rem);
+    text-align: center;
+    color: var(--color-on-dark);
+  }
+
+  .hero__content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .hero__chips {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+
+  .hero__title {
+    margin-top: 1.25rem;
+    font-family: var(--font-heading);
+    font-size: var(--fs-display);
+    font-weight: 800;
+    line-height: 1.05;
+  }
+  @media (min-width: 768px) {
+    .hero__title {
+      line-height: 0.95;
+    }
+  }
+  .hero__line {
+    display: block;
+    text-wrap: balance;
+  }
+  .hero__line--accent {
+    margin-top: 0;
+    color: var(--color-blue-400);
+  }
+  @media (min-width: 768px) {
+    .hero__line--accent {
+      margin-top: 0.75rem;
+    }
+  }
+
+  /* ==== Heat-to-cold headline animation (remove this block to undo) ==== */
+  @supports (background-clip: text) or (-webkit-background-clip: text) {
+    .hero__line--accent {
+      background-image: linear-gradient(
+        90deg,
+        var(--color-heat-light) 0%,
+        var(--color-blue-300) 50%,
+        var(--color-heat-light) 100%
+      );
+      background-size: 200% 100%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      color: transparent;
+      animation: heat-to-cold 8s linear infinite;
+    }
+  }
+  @keyframes heat-to-cold {
+    to {
+      background-position: -200% 0;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero__line--accent {
+      animation: none;
+      background: none;
+      -webkit-text-fill-color: currentColor;
+      color: var(--color-blue-400);
+    }
+  }
+  /* ==== end heat-to-cold ==== */
+
+
+  .hero__tagline {
+    margin-top: 1rem;
+    max-width: 38rem;
+    color: var(--color-on-dark-soft);
+  }
+  @media (max-width: 767px) {
+    .hero__tagline {
+      display: none;
+    }
+  }
+
+  .hero__description {
+    margin-top: 1.25rem;
+    max-width: 52rem;
+    font-size: var(--fs-500);
+    line-height: 1.6;
+    color: var(--color-on-dark-muted);
+    text-wrap: pretty;
+  }
+
+  .hero__cta {
+    margin-top: 1.75rem;
+  }
+</style>

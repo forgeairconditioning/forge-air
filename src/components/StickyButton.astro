@@ -1,0 +1,168 @@
+---
+import Icon from './Icon.astro';
+import { getUi, type Lang } from '../i18n/ui';
+import { telHref, whatsappHref } from '../lib/format';
+import type { SiteSettings } from '../lib/content';
+
+interface Props {
+  lang: Lang;
+  settings: SiteSettings;
+}
+
+const { lang, settings } = Astro.props;
+const t = getUi(lang);
+const wa = settings.whatsapp;
+
+// Same switch as every other WhatsApp button: off in Studio (or no number) = no WhatsApp button.
+const waHref = wa.enabled && wa.number ? whatsappHref(wa.number, wa.message ?? undefined) : null;
+---
+
+{/*
+  Both buttons are in the page; CSS shows one per screen size (phones: Call Now, larger: WhatsApp).
+  A static site can't ask "is this a phone?" at build time, and CSS has no flash or layout jump.
+  A button hidden with display:none is also skipped by screen readers and the Tab key.
+*/}
+{
+  waHref && (
+    <a class="btn btn--whatsapp sticky sticky--whatsapp" data-sticky-whatsapp href={waHref} target="_blank" rel="noopener">
+      <Icon name="whatsapp" />
+      {t.actions.whatsapp}
+    </a>
+  )
+}
+<a class="btn sticky sticky--call" data-sticky-call href={telHref(settings.phone)}>
+  <Icon name="phone" />
+  {settings.callLabel}
+</a>
+
+<script>
+  // The footer has its own WhatsApp and Call Now buttons, and on phones so does the hero,
+  // so the floating button steps aside whenever one of those sections is on screen.
+  const whatsappButton = document.querySelector<HTMLElement>('[data-sticky-whatsapp]');
+  const callButton = document.querySelector<HTMLElement>('[data-sticky-call]');
+  const hero = document.querySelector('.hero');
+  const footer = document.querySelector('footer');
+
+  if (hero && footer && 'IntersectionObserver' in window) {
+    // Two observers, two facts. If this script never runs, the buttons simply stay visible.
+    let heroOnScreen = true;
+    let footerOnScreen = false;
+    let menuOpen = false;
+    callButton?.classList.add('is-hidden'); // start hidden (page loads at the top); the observers correct it
+
+    const update = () => {
+      // Call Now (phones) hides over the hero and the footer; WhatsApp (larger screens) only over the footer.
+      // Both buttons step aside while the hamburger menu is open (phones: Call Now; tablets: WhatsApp).
+      callButton?.classList.toggle('is-hidden', heroOnScreen || footerOnScreen || menuOpen);
+      whatsappButton?.classList.toggle('is-hidden', footerOnScreen || menuOpen); // tablet also has the hamburger
+    };
+
+    new IntersectionObserver(([entry]) => {
+      heroOnScreen = entry.isIntersecting;
+      update();
+    }).observe(hero);
+
+    new IntersectionObserver(([entry]) => {
+      footerOnScreen = entry.isIntersecting;
+      update();
+    }).observe(footer);
+
+    // The header script owns the menu; we just watch the toggle's aria-expanded attribute.
+    const menuToggle = document.querySelector('.menu-toggle');
+    if (menuToggle) {
+      const syncMenu = () => {
+        menuOpen = menuToggle.getAttribute('aria-expanded') === 'true';
+        update();
+      };
+      new MutationObserver(syncMenu).observe(menuToggle, {
+        attributes: true,
+        attributeFilter: ['aria-expanded'],
+      });
+    }
+  }
+</script>
+
+<style>
+  /* Both stay in the same corner of the screen while the page scrolls.
+     Size, padding and font come from the shared .btn style, so they match the other pills. */
+  .sticky {
+    position: fixed;
+    z-index: 40;
+    right: 1rem;
+    bottom: 2rem;
+    /* Two layers: a tight one that defines the edge, and a soft one that lifts the button off the page. */
+    box-shadow:
+      0 2px 4px rgb(0 0 0 / 0.14),
+      0 8px 20px rgb(0 0 0 / 0.24);
+    animation: sticky-shake 7s ease-in-out 3s infinite;
+  }
+
+  /* A short wiggle, then a long pause: it only moves during the first ~8% of each 7s cycle. */
+  @keyframes sticky-shake {
+    0%,
+    10%,
+    100% {
+      transform: none;
+    }
+    1.5% {
+      transform: translateX(-4px) rotate(-3deg);
+    }
+    3% {
+      transform: translateX(4px) rotate(3deg);
+    }
+    4.5% {
+      transform: translateX(-3px) rotate(-2deg);
+    }
+    6% {
+      transform: translateX(3px) rotate(2deg);
+    }
+    7.5% {
+      transform: translateX(-1px) rotate(-1deg);
+    }
+  }
+
+  /* No movement while someone is pointing at it or tabbing to it, or if they asked for less motion. */
+  .sticky:hover,
+  .sticky:focus-visible {
+    animation: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .sticky {
+      animation: none;
+    }
+  }
+
+  /* Fade out (and leave the Tab order) while the script says another button is already on screen. */
+  .sticky {
+    transition:
+      opacity 0.25s ease,
+      visibility 0.25s;
+  }
+  .sticky.is-hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    animation: none;
+  }
+
+  /* Larger screens: WhatsApp only. */
+  .sticky--call {
+    display: none;
+  }
+
+  /* Phones (under 768px): Call Now replaces WhatsApp. */
+  @media (max-width: 767px) {
+    .sticky--whatsapp {
+      display: none;
+    }
+    .sticky--call {
+      display: inline-flex;
+    }
+  }
+
+  @media print {
+    .sticky {
+      display: none;
+    }
+  }
+</style>

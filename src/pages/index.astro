@@ -1,11 +1,50 @@
 ---
-import Welcome from "../components/Welcome.astro";
-import Layout from "../layouts/Layout.astro";
+// The bare "/" has no content of its own. A tiny inline script picks the language:
+//   1. the visitor's last manual choice (saved by the language switcher), else
+//   2. their browser's first preferred language: Spanish -> /es/, anything else -> /en/.
+// Pages that are opened directly (/en/, /es/, shared links) are never redirected.
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import { defaultLang } from '../i18n/ui';
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+const urls = {
+  en: getRelativeLocaleUrl('en'),
+  es: getRelativeLocaleUrl('es'),
+  fallback: getRelativeLocaleUrl(defaultLang),
+};
 ---
 
-<Layout>
-	<Welcome />
-</Layout>
+<!doctype html>
+<html lang={defaultLang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Forge Air</title>
+    <link rel="alternate" hreflang="en" href={urls.en} />
+    <link rel="alternate" hreflang="es" href={urls.es} />
+    <!-- Without JavaScript: go to the default language. -->
+    <noscript><meta http-equiv="refresh" content={`0;url=${urls.fallback}`} /></noscript>
+    <script is:inline define:vars={{ urls }}>
+      var target = urls.en;
+      try {
+        var saved = localStorage.getItem('forge-air-lang');
+        if (saved === 'en' || saved === 'es') {
+          target = urls[saved];
+        } else {
+          var preferred = (navigator.languages && navigator.languages[0]) || navigator.language || '';
+          if (/^es(\b|-|_)/i.test(preferred)) target = urls.es;
+        }
+      } catch (e) {
+        // Storage blocked: fall through with whatever was detected above.
+        var p = (navigator.languages && navigator.languages[0]) || navigator.language || '';
+        if (/^es(\b|-|_)/i.test(p)) target = urls.es;
+      }
+      location.replace(target);
+    </script>
+  </head>
+  <body>
+    <p>
+      <a href={urls.en}>English</a> · <a href={urls.es}>Español</a>
+    </p>
+  </body>
+</html>
