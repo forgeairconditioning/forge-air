@@ -117,6 +117,15 @@ const waHref =
       if ((event.target as HTMLElement).closest('a')) setOpen(false);
     });
 
+    // Tapping/clicking anywhere outside the menu (and outside the hamburger button) closes it.
+    // "click" rather than "pointerdown", so dragging the page to scroll doesn't close it.
+    document.addEventListener('click', (event) => {
+      if (menu.hidden) return;
+      const target = event.target as Node;
+      if (menu.contains(target) || toggle.contains(target)) return;
+      setOpen(false);
+    });
+
     // Escape closes the menu and gives focus back to the button.
     header.addEventListener('keydown', (event) => {
       if (event.key === 'Escape' && !menu.hidden) setOpen(false, true);
