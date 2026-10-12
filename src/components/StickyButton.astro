@@ -52,9 +52,9 @@ const waHref = wa.enabled && wa.number ? whatsappHref(wa.number, wa.message ?? u
 
     const update = () => {
       // Call Now (phones) hides over the hero and the footer; WhatsApp (larger screens) only over the footer.
-      // It also steps aside while the hamburger menu is open.
+      // Both buttons step aside while the hamburger menu is open (phones: Call Now; tablets: WhatsApp).
       callButton?.classList.toggle('is-hidden', heroOnScreen || footerOnScreen || menuOpen);
-      whatsappButton?.classList.toggle('is-hidden', footerOnScreen);
+      whatsappButton?.classList.toggle('is-hidden', footerOnScreen || menuOpen); // tablet also has the hamburger
     };
 
     new IntersectionObserver(([entry]) => {
