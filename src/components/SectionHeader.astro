@@ -1,0 +1,64 @@
+---
+import { splitAccent } from '../lib/format';
+
+interface Props {
+  eyebrow: string;
+  heading: string;
+  /** Word inside the heading to paint with the accent gradient (optional). */
+  accentWord?: string | null;
+  intro?: string | null;
+  /** id for the <h2>, so the parent <section> can point aria-labelledby at it. */
+  titleId?: string;
+}
+
+const { eyebrow, heading, accentWord, intro, titleId } = Astro.props;
+const parts = splitAccent(heading, accentWord);
+---
+
+<header class="section-header">
+  <p class="chip">{eyebrow}</p>
+  <h2 id={titleId} class="section-header__title">
+    {
+      parts ? (
+        <>
+          {parts[0]}
+          <span class="section-header__accent">{parts[1]}</span>
+          {parts[2]}
+        </>
+      ) : (
+        heading
+      )
+    }
+  </h2>
+  {intro && <p class="section-header__intro">{intro}</p>}
+</header>
+
+<style>
+  .section-header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  .section-header__title {
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1.2;
+    color: var(--color-text-strong);
+  }
+  .section-header__accent {
+    color: var(--color-blue-400); /* fallback if gradient text isn't supported */
+    background: linear-gradient(180deg, var(--color-blue-400), var(--color-blue-300));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .section-header__intro {
+    font-size: clamp(1.0625rem, 1rem + 0.35vw, 1.25rem);
+    line-height: 1.55;
+    color: var(--color-text-body);
+    text-wrap: pretty;
+    /* The CMS paragraph can contain blank lines; keep them as visible breaks. */
+    white-space: pre-line;
+  }
+</style>

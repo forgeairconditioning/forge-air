@@ -1,0 +1,270 @@
+---
+import Logo from './Logo.astro';
+import LanguageSwitcher from './LanguageSwitcher.astro';
+import Icon from './Icon.astro';
+import { getUi, type Lang } from '../i18n/ui';
+import { telHref, whatsappHref } from '../lib/format';
+import type { SiteSettings } from '../lib/content';
+
+interface Props {
+  lang: Lang;
+  settings: SiteSettings;
+}
+
+const { lang, settings } = Astro.props;
+const t = getUi(lang);
+
+const links = [
+  { href: '#why-us', label: t.nav.whyUs },
+  { href: '#service-area', label: t.nav.serviceArea },
+  { href: '#reviews', label: t.nav.reviews },
+  { href: '#contact', label: t.nav.contact },
+];
+
+const phoneHref = telHref(settings.phone);
+const { whatsapp } = settings;
+const waHref =
+  whatsapp.enabled && whatsapp.number
+    ? whatsappHref(whatsapp.number, whatsapp.message ?? undefined)
+    : null;
+---
+
+<header class="site-header">
+  <div class="container site-header__bar">
+    <Logo lang={lang} />
+
+    <nav class="primary-nav" aria-label={t.nav.label}>
+      <ul>
+        {links.map((link) => <li><a href={link.href}>{link.label}</a></li>)}
+      </ul>
+    </nav>
+
+    <button
+      class="menu-toggle"
+      type="button"
+      aria-expanded="false"
+      aria-controls="mobile-menu"
+      aria-label={t.menu.open}
+      data-label-open={t.menu.open}
+      data-label-close={t.menu.close}
+    >
+      <span class="menu-toggle__bar"></span>
+      <span class="menu-toggle__bar"></span>
+    </button>
+
+    <div class="site-header__actions">
+      <LanguageSwitcher lang={lang} />
+      <a class="phone-link" href={phoneHref}>
+        <Icon name="phone" />
+        <span>{settings.phone}</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="mobile-menu" id="mobile-menu" hidden>
+    <div class="container">
+      <nav aria-label={t.nav.label}>
+        <ul class="mobile-menu__links">
+          {links.map((link) => <li><a href={link.href}>{link.label}</a></li>)}
+        </ul>
+      </nav>
+
+      <div class="mobile-menu__small-only">
+        <a class="phone-link" href={phoneHref}>
+          <Icon name="phone" />
+          <span>{settings.phone}</span>
+        </a>
+        <LanguageSwitcher lang={lang} />
+      </div>
+
+      <div class="mobile-menu__buttons">
+        <a class="btn" href={phoneHref}>
+          <Icon name="phone" />
+          {settings.callLabel}
+        </a>
+        {
+          waHref && (
+            <a class="btn btn--whatsapp" href={waHref} target="_blank" rel="noopener">
+              <Icon name="whatsapp" />
+              {t.actions.whatsapp}
+            </a>
+          )
+        }
+      </div>
+    </div>
+  </div>
+</header>
+
+<script>
+  const header = document.querySelector<HTMLElement>('.site-header');
+  const toggle = header?.querySelector<HTMLButtonElement>('.menu-toggle');
+  const menu = header?.querySelector<HTMLElement>('#mobile-menu');
+
+  if (header && toggle && menu) {
+    const setOpen = (open: boolean, returnFocus = false) => {
+      menu.hidden = !open;
+      toggle.setAttribute('aria-expanded', String(open));
+      toggle.setAttribute(
+        'aria-label',
+        (open ? toggle.dataset.labelClose : toggle.dataset.labelOpen) ?? '',
+      );
+      if (!open && returnFocus) toggle.focus();
+    };
+
+    toggle.addEventListener('click', () => setOpen(menu.hidden));
+
+    // Close when a link or button inside the menu is used (anchor links scroll the page).
+    menu.addEventListener('click', (event) => {
+      if ((event.target as HTMLElement).closest('a')) setOpen(false);
+    });
+
+    // Escape closes the menu and gives focus back to the button.
+    header.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && !menu.hidden) setOpen(false, true);
+    });
+
+    // If the window grows past the mobile breakpoint, reset the menu.
+    window.matchMedia('(min-width: 961px)').addEventListener('change', (event) => {
+      if (event.matches) setOpen(false);
+    });
+  }
+</script>
+
+<style>
+  .site-header {
+    position: absolute;
+    inset: 0 0 auto 0;
+    z-index: 30;
+    color: var(--color-on-dark);
+  }
+
+  .site-header__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding-block: 1.5rem;
+  }
+
+  /* ---- Desktop navigation ---- */
+  .primary-nav ul {
+    display: flex;
+    gap: 2rem;
+  }
+  .primary-nav a {
+    font-family: var(--font-heading);
+    font-size: 1.0625rem;
+    color: rgb(255 255 255 / 0.88);
+    transition: color var(--transition);
+  }
+  .primary-nav a:hover {
+    color: var(--color-blue-400);
+  }
+
+  .site-header__actions {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+  }
+
+  .phone-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--color-blue-400);
+    white-space: nowrap;
+  }
+
+  /* ---- Hamburger button (hidden on desktop) ---- */
+  .menu-toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.45rem;
+    width: 2.75rem;
+    height: 2.75rem;
+    padding: 0 0.4rem;
+    border: 0;
+    background: none;
+    cursor: pointer;
+  }
+  .menu-toggle__bar {
+    display: block;
+    height: 3px;
+    border-radius: 2px;
+    background: #dfe6f2;
+    transition: transform var(--transition);
+  }
+  .menu-toggle[aria-expanded='true'] .menu-toggle__bar:first-child {
+    transform: translateY(0.3rem) rotate(45deg);
+  }
+  .menu-toggle[aria-expanded='true'] .menu-toggle__bar:last-child {
+    transform: translateY(-0.3rem) rotate(-45deg);
+  }
+
+  /* ---- Opened mobile menu ---- */
+  .mobile-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    max-height: calc(100dvh - 5rem);
+    overflow-y: auto;
+    padding-block: 0.5rem 1.5rem;
+    background: rgb(16 24 30 / 0.98);
+    border-top: 1px solid rgb(255 255 255 / 0.12);
+    box-shadow: 0 1.25rem 2.5rem rgb(0 0 0 / 0.35);
+  }
+  .mobile-menu__links a {
+    display: block;
+    padding: 0.95rem 0;
+    font-family: var(--font-heading);
+    font-size: 1.25rem;
+    border-bottom: 1px solid rgb(255 255 255 / 0.1);
+  }
+  .mobile-menu__links a:hover {
+    color: var(--color-blue-400);
+  }
+  .mobile-menu__small-only {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-block: 1.25rem 0.25rem;
+  }
+  .mobile-menu__buttons {
+    display: grid;
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+  }
+
+  /* ---- Breakpoints (from the viewport variations) ---- */
+  @media (max-width: 960px) {
+    .primary-nav {
+      display: none;
+    }
+    .menu-toggle {
+      display: flex;
+    }
+    .phone-link {
+      font-size: 1.125rem;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .site-header__actions {
+      display: none;
+    }
+    .mobile-menu__small-only {
+      display: flex;
+    }
+  }
+
+  @media (min-width: 961px) {
+    .mobile-menu {
+      display: none !important;
+    }
+  }
+</style>

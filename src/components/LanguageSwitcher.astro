@@ -1,0 +1,56 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import { locales, getUi, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  class?: string;
+}
+
+const { lang, class: className } = Astro.props;
+const t = getUi(lang);
+---
+
+<div class:list={['lang-switch', className]} role="group" aria-label={t.language.label}>
+  {
+    locales.map((code, index) => (
+      <>
+        <a
+          href={getRelativeLocaleUrl(code)}
+          lang={code}
+          hreflang={code}
+          title={t.language[code]}
+          aria-current={code === lang ? 'true' : undefined}
+        >
+          {code.toUpperCase()}
+        </a>
+        {index < locales.length - 1 && <span aria-hidden="true">|</span>}
+      </>
+    ))
+  }
+</div>
+
+<style>
+  .lang-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+  .lang-switch a {
+    opacity: 0.75;
+    transition: opacity var(--transition), color var(--transition);
+  }
+  .lang-switch a:hover,
+  .lang-switch a[aria-current='true'] {
+    opacity: 1;
+  }
+  .lang-switch a[aria-current='true'] {
+    color: var(--color-on-dark);
+  }
+  .lang-switch span {
+    opacity: 0.6;
+  }
+</style>

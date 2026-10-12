@@ -1,0 +1,43 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import type { Lang } from '../i18n/ui';
+
+/**
+ * Drop the logo at src/assets/logo/logo.svg (white version for dark backgrounds).
+ * Until then, a plain text wordmark is shown.
+ */
+interface Props {
+  lang: Lang;
+  class?: string;
+}
+
+const { lang, class: className } = Astro.props;
+const logos = import.meta.glob<string>('../assets/logo/logo.svg', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+});
+const svg = Object.values(logos)[0];
+---
+
+<a class:list={['logo', className]} href={getRelativeLocaleUrl(lang)} aria-label="Forge Air Conditioning">
+  {svg ? <span set:html={svg} /> : <span class="logo__fallback">FORGE AIR</span>}
+</a>
+
+<style>
+  .logo {
+    display: block;
+    width: 9.4rem;
+    color: var(--color-on-dark);
+  }
+  .logo :global(svg) {
+    width: 100%;
+    height: auto;
+  }
+  .logo__fallback {
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-size: 1.5rem;
+    letter-spacing: 0.04em;
+  }
+</style>

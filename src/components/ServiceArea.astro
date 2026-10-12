@@ -1,0 +1,80 @@
+---
+import Icon from './Icon.astro';
+import SectionHeader from './SectionHeader.astro';
+import { sanityImg, telHref } from '../lib/format';
+import type { ServiceArea, SiteSettings } from '../lib/content';
+import type { Lang } from '../i18n/ui';
+
+interface Props {
+  content: ServiceArea;
+  settings: SiteSettings;
+  lang: Lang;
+}
+
+const { content, settings } = Astro.props;
+const { image } = content;
+---
+
+<section class="area" id="service-area" aria-labelledby="area-title">
+  <div class="container area__inner">
+    {/* Decorative: the map labels repeat the cities named in the page text. */}
+    <img
+      class="area__image"
+      src={sanityImg(image.url, 900)}
+      srcset={`${sanityImg(image.url, 450)} 450w, ${sanityImg(image.url, 900)} 900w`}
+      sizes="(min-width: 1024px) 29rem, min(100vw - 3rem, 29rem)"
+      width={image.width}
+      height={image.height}
+      alt=""
+      loading="lazy"
+      decoding="async"
+    />
+
+    <div class="area__text">
+      <SectionHeader
+        eyebrow={content.eyebrow}
+        heading={content.heading}
+        intro={content.intro}
+        titleId="area-title"
+      />
+      <a class="btn area__cta" href={telHref(settings.phone)}>
+        <Icon name="phone" />
+        {settings.callLabel}
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .area {
+    background: var(--color-sky-100);
+    padding-block: clamp(3rem, 2rem + 3vw, 5rem);
+  }
+
+  /* Mobile first: image on top, text below. */
+  .area__inner {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+
+  .area__image {
+    width: 100%;
+    max-width: 29rem;
+    height: auto;
+  }
+
+  .area__cta {
+    margin-top: 2rem;
+  }
+
+  /* 1024px+: image left, text right, vertically centered. */
+  @media (min-width: 1024px) {
+    .area__inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      gap: 3rem;
+    }
+  }
+</style>

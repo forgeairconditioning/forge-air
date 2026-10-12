@@ -1,0 +1,33 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Hero from '../../components/Hero.astro';
+import WhatWeDo from '../../components/WhatWeDo.astro';
+import ServiceArea from '../../components/ServiceArea.astro';
+import { locales, getUi, type Lang } from '../../i18n/ui';
+import { getSiteSettings, getHero, getWhatWeDo, getServiceArea } from '../../lib/content';
+
+// Static site: tell Astro which URLs to build. This produces /en/ and /es/.
+export function getStaticPaths() {
+  return locales.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params as { lang: Lang };
+const t = getUi(lang);
+
+const [settings, hero, whatWeDo, serviceArea] = await Promise.all([
+  getSiteSettings(lang),
+  getHero(lang),
+  getWhatWeDo(lang),
+  getServiceArea(lang),
+]);
+---
+
+<Layout title={t.meta.title} lang={lang}>
+  <Header lang={lang} settings={settings} />
+  <main>
+    <Hero lang={lang} hero={hero} settings={settings} />
+    <WhatWeDo content={whatWeDo} />
+    <ServiceArea content={serviceArea} settings={settings} lang={lang} />
+  </main>
+</Layout>

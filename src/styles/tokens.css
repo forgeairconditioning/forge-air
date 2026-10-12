@@ -1,0 +1,55 @@
+/*
+ * Design tokens: the single source of truth for colors, type and spacing.
+ * Change a value here and every component follows. Components never hardcode these.
+ *
+ * NOTE: values below were measured from the exported PNGs (Figma's API limit was reached),
+ * so double-check them against Figma and correct here if anything is off.
+ */
+:root {
+  /* ---- Color: brand blues ---- */
+  --color-blue-300: #a0d7ff;
+  --color-blue-400: #62cbff; /* accent text on dark (headline line 2, phone number) */
+  --color-blue-500: #00aaff; /* chips, icons */
+  --color-blue-600: #0393db; /* primary button */
+  --color-blue-700: #0279b5; /* primary button hover */
+
+  /* ---- Color: dark surfaces ---- */
+  --color-ink-900: #10181e; /* hero edge */
+  --color-hero-glow: #18386e; /* hero center glow */
+  --color-navy-900: #0d304e; /* testimonials + footer */
+
+  /* ---- Color: light surfaces ---- */
+  --color-white: #ffffff;
+  --color-surface: #f6f6f8; /* "What we do" section */
+  --color-sky-100: #d8e6f6; /* service area section */
+
+  /* ---- Color: text ---- */
+  --color-text-strong: #3c3c3c; /* headings on light */
+  --color-text-body: #616161; /* paragraphs on light */
+  --color-on-dark: #ffffff;
+  --color-on-dark-soft: #d9e3fa; /* hero tagline */
+  --color-on-dark-muted: #d0d0d0; /* hero description */
+
+  /* ---- Color: other ---- */
+  --color-whatsapp: #2d9d66;
+  --color-whatsapp-hover: #25855a;
+
+  /* ---- Typography ---- */
+  --font-heading: 'Sora Variable', Sora, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-body: 'Inter Variable', Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  --fs-300: 0.8125rem; /* chips */
+  --fs-400: 1rem;
+  --fs-500: 1.125rem; /* hero description, buttons */
+  --fs-600: 1.25rem;
+  --fs-display: clamp(3.1rem, 2.6rem + 2.2vw, 3.5rem); /* hero headline: ~50px on phones, 56px on desktop */
+
+  /* ---- Layout ---- */
+  --container-max: 75rem; /* 1200px max content width (full design at 1440) */
+  --gutter: 1.5rem; /* side margin: 24px on phones. Larger steps are set in global.css */
+  --radius-pill: 999px;
+  --header-offset: 6rem;
+
+  /* ---- Motion ---- */
+  --transition: 150ms ease;
+}
