@@ -29,6 +29,16 @@
   --color-on-dark: #ffffff;
   --color-on-dark-soft: #d9e3fa; /* hero tagline */
   --color-on-dark-muted: #d0d0d0; /* hero description */
+  --color-heading-on-dark: #d7eaff; /* section titles on navy */
+  --color-card-top: #082337; /* testimonial card gradient */
+  --color-card-bottom: #0d355e;
+  --color-card-border: #089ce6;
+  --color-star: #f9dd84;
+  --color-phone-link: #002259; /* phone number in the contact block */
+  --color-whatsapp-text: #108d54; /* green link text on white (4.6:1) */
+  --color-field-border: #e4e6eb;
+  --color-label: #545965;
+  --color-error: #b3261e;
 
   /* ---- Color: other ---- */
   --color-whatsapp: #2d9d66;

@@ -71,6 +71,30 @@ export interface Gallery {
   items: GalleryPhoto[];
 }
 
+export interface Testimonial {
+  quote: string;
+  name: string;
+  location: string | null;
+  rating: number;
+}
+
+export interface Testimonials {
+  eyebrow: string;
+  heading: string;
+  intro: string;
+  items: Testimonial[];
+}
+
+export interface Contact {
+  eyebrow: string;
+  heading: string;
+  intro: string;
+  perkLine: string;
+  helpLabel: string;
+  whatsappLine: string;
+  privacyNote: string;
+}
+
 const siteSettingsQuery = /* groq */ `
   *[_id == "siteSettings"][0]{
     phone,
@@ -142,6 +166,32 @@ const galleryQuery = /* groq */ `
   }
 `;
 
+const testimonialsQuery = /* groq */ `
+  *[_id == "homePage"][0].testimonials{
+    "eyebrow": header.eyebrow[$lang],
+    "heading": header.heading[$lang],
+    "intro": header.intro[$lang],
+    "items": items[]{
+      "quote": quote[$lang],
+      name,
+      location,
+      "rating": coalesce(rating, 5)
+    }
+  }
+`;
+
+const contactQuery = /* groq */ `
+  *[_id == "homePage"][0].contact{
+    "eyebrow": header.eyebrow[$lang],
+    "heading": header.heading[$lang],
+    "intro": header.intro[$lang],
+    "perkLine": perkLine[$lang],
+    "helpLabel": helpLabel[$lang],
+    "whatsappLine": whatsappLine[$lang],
+    "privacyNote": privacyNote[$lang]
+  }
+`;
+
 async function fetchOrThrow<T>(query: string, lang: Lang, what: string): Promise<T> {
   const result = await client.fetch<T | null>(query, { lang });
   if (!result) {
@@ -172,3 +222,9 @@ export const getServiceArea = (lang: Lang) =>
 
 export const getGallery = (lang: Lang) =>
   fetchOrThrow<Gallery>(galleryQuery, lang, 'homePage.gallery');
+
+export const getTestimonials = (lang: Lang) =>
+  fetchOrThrow<Testimonials>(testimonialsQuery, lang, 'homePage.testimonials');
+
+export const getContact = (lang: Lang) =>
+  fetchOrThrow<Contact>(contactQuery, lang, 'homePage.contact');

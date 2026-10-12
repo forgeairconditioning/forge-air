@@ -1,0 +1,429 @@
+---
+import Icon from './Icon.astro';
+import SectionHeader from './SectionHeader.astro';
+import { getUi, type Lang } from '../i18n/ui';
+import { telHref, whatsappHref } from '../lib/format';
+import type { Contact, SiteSettings } from '../lib/content';
+
+interface Props {
+  content: Contact;
+  settings: SiteSettings;
+  lang: Lang;
+}
+
+const { content, settings, lang } = Astro.props;
+const t = getUi(lang).form;
+const wa = settings.whatsapp;
+const showWhatsapp = wa.enabled && !!wa.number;
+---
+
+<section class="contact" id="contact" aria-labelledby="contact-title">
+  <div class="container contact__inner">
+    <div class="contact__info">
+      <SectionHeader
+        eyebrow={content.eyebrow}
+        heading={content.heading}
+        intro={content.intro}
+        titleId="contact-title"
+      />
+
+      <p class="perk">
+        <svg class="perk__icon" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="12" />
+          <path d="M6.8 12.4l3.6 3.6 6.8-7" />
+        </svg>
+        {content.perkLine}
+      </p>
+
+      <div class="help">
+        <p class="help__label">{content.helpLabel}</p>
+        <a class="help__phone" href={telHref(settings.phone)}>
+          <Icon name="phone" />
+          {settings.phone}
+        </a>
+        {
+          showWhatsapp && (
+            <a
+              class="help__whatsapp"
+              href={whatsappHref(wa.number!, wa.message ?? undefined)}
+              target="_blank"
+              rel="noopener"
+            >
+              {content.whatsappLine}
+            </a>
+          )
+        }
+      </div>
+    </div>
+
+    {/*
+      Netlify Forms reads this form from the built HTML (data-netlify + name) and creates the inbox.
+      Both languages post to the same form name, so their fields must stay identical.
+      novalidate: our script shows bilingual messages instead of the browser's own bubbles.
+    */}
+    <form
+      class="form"
+      name="contact"
+      method="POST"
+      action={`/${lang}/`}
+      data-netlify="true"
+      data-netlify-honeypot="bot-field"
+      data-contact-form
+      data-msg-required={t.errors.required}
+      data-msg-email={t.errors.email}
+      data-msg-phone={t.errors.phone}
+      data-msg-sending={t.sending}
+      data-msg-success={t.success}
+      data-msg-failure={t.failure}
+      novalidate
+    >
+      <input type="hidden" name="form-name" value="contact" />
+      <input type="hidden" name="language" value={lang} />
+
+      {/* Honeypot: invisible to people, bots fill it in and get filtered. */}
+      <p class="form__trap" aria-hidden="true">
+        <label>Don't fill this out: <input name="bot-field" tabindex="-1" autocomplete="off" /></label>
+      </p>
+
+      <div class="field">
+        <label for="f-name">{t.name}</label>
+        <input id="f-name" name="name" type="text" autocomplete="name" required data-field aria-describedby="f-name-error" />
+        <p class="field__error" id="f-name-error" hidden></p>
+      </div>
+
+      <div class="field">
+        <label for="f-phone">{t.phone}</label>
+        <input
+          id="f-phone"
+          name="phone"
+          type="tel"
+          inputmode="tel"
+          autocomplete="tel"
+          required
+          pattern="[0-9+\(\)\-\s.]{7,20}"
+          data-field
+          aria-describedby="f-phone-error"
+        />
+        <p class="field__error" id="f-phone-error" hidden></p>
+      </div>
+
+      <div class="field">
+        <label for="f-email">{t.email}</label>
+        <input id="f-email" name="email" type="email" autocomplete="email" required data-field aria-describedby="f-email-error" />
+        <p class="field__error" id="f-email-error" hidden></p>
+      </div>
+
+      <div class="field">
+        <label for="f-service">{t.service}</label>
+        <select id="f-service" name="service" required data-field aria-describedby="f-service-error">
+          <option value="" selected disabled>{t.servicePlaceholder}</option>
+          {t.services.map((option) => <option value={option.value}>{option.label}</option>)}
+        </select>
+        <p class="field__error" id="f-service-error" hidden></p>
+      </div>
+
+      <div class="field field--wide">
+        <label for="f-message">{t.message}</label>
+        <textarea id="f-message" name="message" rows="4"></textarea>
+      </div>
+
+      <button class="btn form__submit" type="submit">{t.send}</button>
+
+      <p class="form__status" data-status role="status" tabindex="-1" hidden></p>
+
+      <p class="form__note">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M6 10V8a6 6 0 1 1 12 0v2h1.5A1.5 1.5 0 0 1 21 11.5v9a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 20.5v-9A1.5 1.5 0 0 1 4.5 10zm2 0h8V8a4 4 0 1 0-8 0z" />
+        </svg>
+        {content.privacyNote}
+      </p>
+    </form>
+  </div>
+</section>
+
+<script>
+  type Field = HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
+
+  const form = document.querySelector<HTMLFormElement>('[data-contact-form]');
+
+  if (form) {
+    const msg = form.dataset;
+    const status = form.querySelector<HTMLElement>('[data-status]')!;
+    const button = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+    const sendLabel = button.textContent ?? '';
+    const fields = [...form.querySelectorAll<Field>('[data-field]')];
+
+    // The browser already knows *why* a field is invalid (validity); we only translate it.
+    function messageFor(field: Field): string {
+      const v = field.validity;
+      if (v.valid) return '';
+      if (v.valueMissing) return msg.msgRequired!;
+      if (v.typeMismatch) return msg.msgEmail!;
+      if (v.patternMismatch) return msg.msgPhone!;
+      return msg.msgRequired!;
+    }
+
+    function showError(field: Field, text: string) {
+      const error = form!.querySelector<HTMLElement>(`#${field.id}-error`)!;
+      error.textContent = text;
+      error.hidden = !text;
+      field.setAttribute('aria-invalid', text ? 'true' : 'false');
+    }
+
+    function setStatus(text: string, kind: 'success' | 'error' | '') {
+      status.textContent = text;
+      status.hidden = !text;
+      status.dataset.kind = kind;
+    }
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      let firstInvalid: Field | null = null;
+      for (const field of fields) {
+        const text = messageFor(field);
+        showError(field, text);
+        if (text && !firstInvalid) firstInvalid = field;
+      }
+      if (firstInvalid) {
+        firstInvalid.focus();
+        return;
+      }
+
+      button.disabled = true;
+      button.textContent = msg.msgSending!;
+      setStatus('', '');
+
+      try {
+        // Netlify Forms accepts a urlencoded POST (this includes form-name and the honeypot).
+        const body = new URLSearchParams(new FormData(form) as unknown as Record<string, string>);
+        const response = await fetch('/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: body.toString(),
+        });
+        if (!response.ok) throw new Error(String(response.status));
+
+        form.reset();
+        fields.forEach((field) => showError(field, ''));
+        setStatus(msg.msgSuccess!, 'success');
+      } catch {
+        setStatus(msg.msgFailure!, 'error');
+      } finally {
+        button.disabled = false;
+        button.textContent = sendLabel;
+        status.focus();
+      }
+    });
+
+    // Once a field shows an error, re-check it as the person fixes it.
+    form.addEventListener('input', (event) => {
+      const field = event.target as Field;
+      if (field.hasAttribute?.('data-field') && field.getAttribute('aria-invalid') === 'true') {
+        showError(field, messageFor(field));
+      }
+    });
+  }
+</script>
+
+<style>
+  .contact {
+    background: var(--color-white);
+    padding-block: clamp(3.5rem, 2rem + 4vw, 5rem);
+  }
+
+  /* Mobile first: info block, then the form card. */
+  .contact__inner {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+
+  /* ---- Left column ---- */
+  .perk {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1rem;
+    font-size: 1.0625rem;
+    font-weight: 700;
+    color: var(--color-ink-900);
+  }
+  .perk__icon {
+    flex: none;
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+  .perk__icon circle {
+    fill: var(--color-whatsapp);
+  }
+  .perk__icon path {
+    fill: none;
+    stroke: var(--color-white);
+    stroke-width: 2.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .help {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-top: 2.5rem;
+  }
+  .help__label {
+    font-size: 1.0625rem;
+    font-weight: 700;
+    color: var(--color-ink-900);
+  }
+  .help__phone {
+    display: inline-flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: var(--color-phone-link);
+  }
+  .help__phone :global(.icon) {
+    font-size: 1.5rem;
+  }
+  .help__whatsapp {
+    font-size: 1.0625rem;
+    font-weight: 700;
+    color: var(--color-whatsapp-text);
+  }
+  .help__phone:hover,
+  .help__whatsapp:hover {
+    text-decoration: underline;
+  }
+
+  /* ---- Form card ---- */
+  .form {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem 1rem;
+    padding: 2rem 1.75rem;
+    border-radius: 1.25rem;
+    background: var(--color-surface);
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .field label {
+    font-size: 1rem;
+    color: var(--color-label);
+  }
+
+  .field input,
+  .field select,
+  .field textarea {
+    width: 100%;
+    min-height: 3rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--color-field-border);
+    border-radius: 0.5rem;
+    background: var(--color-white);
+    font: inherit;
+    color: var(--color-ink-900);
+  }
+  .field textarea {
+    min-height: 6rem;
+    resize: vertical;
+  }
+  .field select {
+    appearance: none;
+    padding-right: 2.5rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23545965' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1.25rem;
+  }
+  /* Placeholder option looks like placeholder text until a service is picked. */
+  .field select:invalid {
+    color: var(--color-label);
+  }
+  .field [aria-invalid='true'] {
+    border-color: var(--color-error);
+  }
+  .field__error {
+    font-size: 0.875rem;
+    color: var(--color-error);
+  }
+
+  .form__submit {
+    width: 100%;
+    min-height: 3.375rem;
+    border: 0;
+    cursor: pointer;
+  }
+  .form__submit:disabled {
+    opacity: 0.7;
+    cursor: progress;
+  }
+
+  .form__status {
+    padding: 0.85rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+  }
+  .form__status[data-kind='success'] {
+    background: #e3f4ea;
+    color: #14633c;
+  }
+  .form__status[data-kind='error'] {
+    background: #fbe7e5;
+    color: var(--color-error);
+  }
+
+  .form__note {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.4rem;
+    font-size: 0.875rem;
+    color: #5e636d;
+  }
+  .form__note svg {
+    flex: none;
+    width: 0.95rem;
+    height: 0.95rem;
+    margin-top: 0.15rem;
+    fill: currentColor;
+  }
+
+  /* Visually hidden but still in the DOM, so bots fill it. Not display:none (smart bots skip that). */
+  .form__trap {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  /* 576px+: name/phone and email/service sit in pairs. */
+  @media (min-width: 576px) {
+    .form {
+      grid-template-columns: 1fr 1fr;
+      padding: 2rem;
+    }
+    .field--wide,
+    .form__submit,
+    .form__status,
+    .form__note {
+      grid-column: 1 / -1;
+    }
+  }
+
+  /* 880px+: info left, form card right. */
+  @media (min-width: 880px) {
+    .contact__inner {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      align-items: start;
+      gap: 3rem;
+    }
+  }
+</style>

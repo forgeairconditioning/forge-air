@@ -1,0 +1,128 @@
+---
+import SectionHeader from './SectionHeader.astro';
+import { getUi, type Lang } from '../i18n/ui';
+import type { Testimonials } from '../lib/content';
+
+interface Props {
+  content: Testimonials;
+  lang: Lang;
+}
+
+const { content, lang } = Astro.props;
+const t = getUi(lang);
+const STARS = [1, 2, 3, 4, 5];
+---
+
+<section class="reviews" id="reviews" aria-labelledby="reviews-title">
+  <div class="container">
+    <SectionHeader
+      eyebrow={content.eyebrow}
+      heading={content.heading}
+      intro={content.intro}
+      titleId="reviews-title"
+      align="center"
+      theme="dark"
+    />
+
+    <ul class="reviews__grid">
+      {
+        content.items.map((review) => (
+          <li class="card">
+            {/* One accessible label for the whole row; the drawn stars are decoration. */}
+            <div class="card__stars" role="img" aria-label={t.reviews.stars(review.rating)}>
+              {STARS.map((n) => (
+                <svg
+                  class:list={['star', { 'star--off': n > review.rating }]}
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path d="M12 1.8l3 6.9 7.5.7-5.7 5 1.7 7.3L12 17.6l-6.5 4.1 1.7-7.3-5.7-5 7.5-.7z" />
+                </svg>
+              ))}
+            </div>
+            <blockquote class="card__quote">
+              <p>{review.quote}</p>
+            </blockquote>
+            <p class="card__author">
+              {review.name}
+              {review.location && <> — {review.location}</>}
+            </p>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .reviews {
+    background: var(--color-navy-900);
+    padding-block: clamp(3.5rem, 2rem + 4vw, 5rem);
+  }
+
+  /* Mobile first: stacked cards. */
+  .reviews__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-top: 3rem;
+  }
+
+  .card {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 2.25rem 1.75rem 2rem;
+    border: 1px solid var(--color-card-border);
+    border-radius: 2.5rem;
+    background: linear-gradient(
+      180deg,
+      var(--color-card-top) 0%,
+      #05293f 45%,
+      var(--color-card-bottom) 100%
+    );
+    color: var(--color-on-dark);
+  }
+
+  .card__stars {
+    display: flex;
+    gap: 0.5rem;
+  }
+  .star {
+    width: 1.5rem;
+    height: 1.5rem;
+    fill: var(--color-star);
+  }
+  .star--off {
+    opacity: 0.25;
+  }
+
+  .card__quote {
+    margin: 0;
+    font-size: 1.25rem;
+    line-height: 1.35;
+  }
+  /* Quote marks come from CSS so editors only type the sentence; they follow the page language. */
+  .card__quote p::before {
+    content: open-quote;
+  }
+  .card__quote p::after {
+    content: close-quote;
+  }
+
+  /* Pinned to the bottom so authors line up when the quotes differ in length. */
+  .card__author {
+    margin-top: auto;
+    padding-top: 1rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-on-dark-muted);
+  }
+
+  /* 880px+: three cards side by side. */
+  @media (min-width: 880px) {
+    .reviews__grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+</style>

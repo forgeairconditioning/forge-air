@@ -5,8 +5,10 @@ import Hero from '../../components/Hero.astro';
 import WhatWeDo from '../../components/WhatWeDo.astro';
 import ServiceArea from '../../components/ServiceArea.astro';
 import Gallery from '../../components/Gallery.astro';
+import Testimonials from '../../components/Testimonials.astro';
+import Contact from '../../components/Contact.astro';
 import { locales, getUi, type Lang } from '../../i18n/ui';
-import { getSiteSettings, getHero, getWhatWeDo, getServiceArea, getGallery } from '../../lib/content';
+import { getSiteSettings, getHero, getWhatWeDo, getServiceArea, getGallery, getTestimonials, getContact } from '../../lib/content';
 
 // Static site: tell Astro which URLs to build. This produces /en/ and /es/.
 export function getStaticPaths() {
@@ -16,12 +18,14 @@ export function getStaticPaths() {
 const { lang } = Astro.params as { lang: Lang };
 const t = getUi(lang);
 
-const [settings, hero, whatWeDo, serviceArea, gallery] = await Promise.all([
+const [settings, hero, whatWeDo, serviceArea, gallery, testimonials, contact] = await Promise.all([
   getSiteSettings(lang),
   getHero(lang),
   getWhatWeDo(lang),
   getServiceArea(lang),
   getGallery(lang),
+  getTestimonials(lang),
+  getContact(lang),
 ]);
 ---
 
@@ -32,5 +36,7 @@ const [settings, hero, whatWeDo, serviceArea, gallery] = await Promise.all([
     <WhatWeDo content={whatWeDo} />
     <ServiceArea content={serviceArea} settings={settings} lang={lang} />
     <Gallery content={gallery} />
+    <Testimonials content={testimonials} lang={lang} />
+    <Contact content={contact} settings={settings} lang={lang} />
   </main>
 </Layout>
