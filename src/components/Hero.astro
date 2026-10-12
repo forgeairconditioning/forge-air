@@ -13,7 +13,7 @@ interface Props {
 const { hero, settings } = Astro.props;
 ---
 
-<section class="hero">
+<section class="hero" id="hero">
   <div class="container hero__content">
     <ul class="hero__chips">
       {hero.chips.map((chip) => <li class="chip">{chip}</li>)}

@@ -30,6 +30,19 @@ const t = getUi(lang);
   }
 </div>
 
+<script>
+  // Remember a manual choice, so the root URL ("/") respects it next time instead of re-detecting.
+  document.addEventListener('click', (event) => {
+    const link = (event.target as HTMLElement).closest<HTMLAnchorElement>('.lang-switch a[hreflang]');
+    if (!link) return;
+    try {
+      localStorage.setItem('forge-air-lang', link.hreflang);
+    } catch {
+      // Storage unavailable (private mode): the choice just isn't remembered.
+    }
+  });
+</script>
+
 <style>
   .lang-switch {
     display: inline-flex;

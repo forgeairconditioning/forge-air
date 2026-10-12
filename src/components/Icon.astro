@@ -29,7 +29,16 @@ const recolor = (src: string) => {
     head.replace(/(fill|stroke)="(?!none|currentColor|url)[^"]*"/g, '$1="currentColor"') + tail
   );
 };
-const svg = raw && recolor(raw);
+// Figma wraps every icon in a 24x24 clip-path with a fixed id. Inlined SVGs share one document,
+// so duplicate ids make every copy point at the FIRST one, and if that copy is hidden (display:none,
+// or the header sliding away) all the others lose their clip and vanish. The clip is a no-op
+// (it equals the viewBox), so we drop it instead of de-duplicating ids.
+const stripClip = (src: string) =>
+  src
+    .replace(/\sclip-path="url\(#[^)]*\)"/g, '')
+    .replace(/<defs>\s*(<clipPath[\s\S]*?<\/clipPath>\s*)+<\/defs>/g, '');
+
+const svg = raw && recolor(stripClip(raw));
 ---
 
 {svg && <span class:list={['icon', className]} aria-hidden="true" set:html={svg} />}

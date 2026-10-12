@@ -63,8 +63,8 @@ const { image } = content;
   .what__body {
     display: flex;
     flex-direction: column;
-    gap: 2.5rem;
-    margin-top: 3rem;
+    gap: 1.25rem;
+    margin-top: 1.25rem;
   }
 
   .what__image {
@@ -90,7 +90,7 @@ const { image } = content;
   }
   .service__title {
     margin-top: 0.6rem;
-    font-size: 1.375rem;
+    font-size: 1.125rem; /* stays above the paragraph (1rem) so the hierarchy holds */
     font-weight: 800;
     letter-spacing: 0.1em;
     line-height: 1.2;
@@ -115,11 +115,16 @@ const { image } = content;
       border-top: 1px solid rgb(0 0 0 / 0.1);
       border-bottom: 0;
     }
+    /* First row (AC Repair, AC Installation): no rule above it. */
+    .service:nth-child(-n + 2) {
+      border-top: 0;
+    }
   }
 
   /* ---- 1024px+: services left, thermostat right ---- */
   @media (min-width: 1024px) {
     .what__body {
+      margin-top: 3rem;
       flex-direction: row-reverse; /* image is first in the markup, so reverse puts it on the right */
       align-items: center;
       justify-content: space-between;
