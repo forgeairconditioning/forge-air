@@ -6,6 +6,8 @@ interface Props {
   heading: string;
   /** Word inside the heading to paint with the accent gradient (optional). */
   accentWord?: string | null;
+  /** 'aurora' = slowly shifting blues on the accent word (optional). */
+  accentEffect?: 'aurora';
   intro?: string | null;
   /** id for the <h2>, so the parent <section> can point aria-labelledby at it. */
   titleId?: string;
@@ -15,7 +17,7 @@ interface Props {
   theme?: 'light' | 'dark';
 }
 
-const { eyebrow, heading, accentWord, intro, titleId, align = 'start', theme = 'light' } = Astro.props;
+const { eyebrow, heading, accentWord, accentEffect, intro, titleId, align = 'start', theme = 'light' } = Astro.props;
 const parts = splitAccent(heading, accentWord);
 ---
 
@@ -26,7 +28,7 @@ const parts = splitAccent(heading, accentWord);
       parts ? (
         <>
           {parts[0]}
-          <span class="section-header__accent">{parts[1]}</span>
+          <span class:list={['section-header__accent', accentEffect && `section-header__accent--${accentEffect}`]}>{parts[1]}</span>
           {parts[2]}
         </>
       ) : (
@@ -67,6 +69,46 @@ const parts = splitAccent(heading, accentWord);
     background-clip: text;
     -webkit-text-fill-color: transparent;
   }
+  /* ==== Aurora accent (remove this block, the prop and the markup class to undo) ==== */
+  .section-header__accent--aurora {
+    color: var(--color-blue-600); /* fallback */
+    background-image:
+      /* drifting pale-cyan glow bands, like light curtains */
+      linear-gradient(
+        100deg,
+        transparent 0%,
+        rgb(170 238 255 / 0.75) 20%,
+        transparent 40%,
+        rgb(120 220 255 / 0.6) 65%,
+        transparent 85%,
+        transparent 100%
+      ),
+      /* base: deep to bright blues, first stop = last stop so the loop has no seam */
+      linear-gradient(
+        90deg,
+        #0b4f94 0%,
+        #0279b5 20%,
+        #00aaff 40%,
+        #3bb8f5 60%,
+        #0393db 80%,
+        #0b4f94 100%
+      );
+    background-size: 300% 100%, 200% 100%;
+    background-repeat: repeat;
+    animation: aurora-shift 12s linear infinite;
+  }
+  @keyframes aurora-shift {
+    to {
+      background-position: 150% 0, -200% 0; /* opposite directions, so the colors keep mixing */
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .section-header__accent--aurora {
+      animation: none;
+    }
+  }
+  /* ==== end aurora ==== */
+
   .section-header__intro {
     font-size: clamp(1.0625rem, 1rem + 0.35vw, 1.25rem);
     line-height: 1.55;

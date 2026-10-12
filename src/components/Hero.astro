@@ -87,6 +87,39 @@ const { hero, settings } = Astro.props;
     }
   }
 
+  /* ==== Heat-to-cold headline animation (remove this block to undo) ==== */
+  @supports (background-clip: text) or (-webkit-background-clip: text) {
+    .hero__line--accent {
+      background-image: linear-gradient(
+        90deg,
+        var(--color-heat-light) 0%,
+        var(--color-blue-300) 50%,
+        var(--color-heat-light) 100%
+      );
+      background-size: 200% 100%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      color: transparent;
+      animation: heat-to-cold 8s linear infinite;
+    }
+  }
+  @keyframes heat-to-cold {
+    to {
+      background-position: -200% 0;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero__line--accent {
+      animation: none;
+      background: none;
+      -webkit-text-fill-color: currentColor;
+      color: var(--color-blue-400);
+    }
+  }
+  /* ==== end heat-to-cold ==== */
+
+
   .hero__tagline {
     margin-top: 1rem;
     max-width: 38rem;

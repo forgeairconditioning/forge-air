@@ -8,6 +8,7 @@
 :root {
   /* ---- Color: brand blues ---- */
   --color-blue-300: #a0d7ff;
+  --color-heat-light: #ffcfa3; /* pale orange, headline animation */
   --color-blue-400: #62cbff; /* accent text on dark (headline line 2, phone number) */
   --color-blue-500: #00aaff; /* chips, icons */
   --color-blue-600: #0393db; /* primary button */
