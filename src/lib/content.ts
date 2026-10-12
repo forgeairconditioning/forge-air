@@ -54,6 +54,23 @@ export interface ServiceArea {
   image: SanityImage;
 }
 
+export interface GalleryPhoto {
+  url: string;
+  width: number;
+  height: number;
+  /** Focal point set in Studio (0–1 on each axis), if the editor chose one. */
+  hotspot: { x: number; y: number } | null;
+  alt: string | null;
+  caption: string;
+}
+
+export interface Gallery {
+  eyebrow: string;
+  heading: string;
+  intro: string;
+  items: GalleryPhoto[];
+}
+
 const siteSettingsQuery = /* groq */ `
   *[_id == "siteSettings"][0]{
     phone,
@@ -109,6 +126,22 @@ const serviceAreaQuery = /* groq */ `
   }
 `;
 
+const galleryQuery = /* groq */ `
+  *[_id == "homePage"][0].gallery{
+    "eyebrow": header.eyebrow[$lang],
+    "heading": header.heading[$lang],
+    "intro": header.intro[$lang],
+    "items": items[]{
+      "url": image.asset->url,
+      "width": image.asset->metadata.dimensions.width,
+      "height": image.asset->metadata.dimensions.height,
+      "hotspot": image.hotspot{ x, y },
+      "alt": alt[$lang],
+      "caption": caption[$lang]
+    }
+  }
+`;
+
 async function fetchOrThrow<T>(query: string, lang: Lang, what: string): Promise<T> {
   const result = await client.fetch<T | null>(query, { lang });
   if (!result) {
@@ -136,3 +169,6 @@ export const getWhatWeDo = (lang: Lang) =>
 
 export const getServiceArea = (lang: Lang) =>
   fetchOrThrow<ServiceArea>(serviceAreaQuery, lang, 'homePage.serviceArea');
+
+export const getGallery = (lang: Lang) =>
+  fetchOrThrow<Gallery>(galleryQuery, lang, 'homePage.gallery');
