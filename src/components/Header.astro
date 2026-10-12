@@ -74,7 +74,6 @@ const waHref =
           <Icon name="phone" />
           <span>{settings.phone}</span>
         </a>
-        <LanguageSwitcher lang={lang} />
       </div>
 
       <div class="mobile-menu__buttons">
@@ -128,11 +127,57 @@ const waHref =
       if (event.matches) setOpen(false);
     });
   }
+
+  // Sticky on every screen; on desktop it also hides while scrolling down and returns on any scroll up.
+  if (header) {
+    const desktop = window.matchMedia('(min-width: 961px)');
+    const TOP_ZONE = 24; // px from the top where the header stays transparent and visible
+    const MIN_DELTA = 6; // ignore tiny wheel/trackpad jitters
+    let lastY = window.scrollY;
+    let ticking = false;
+
+    const update = () => {
+      ticking = false;
+      const y = window.scrollY;
+
+      header.classList.toggle('is-stuck', y > TOP_ZONE);
+
+      // Mobile/tablet: the header is sticky and always visible.
+      if (!desktop.matches) {
+        header.classList.remove('is-hidden');
+        lastY = y;
+        return;
+      }
+
+      if (y <= TOP_ZONE) {
+        header.classList.remove('is-hidden');
+      } else if (Math.abs(y - lastY) >= MIN_DELTA) {
+        const goingDown = y > lastY;
+        // Never hide while keyboard focus is inside the header.
+        header.classList.toggle('is-hidden', goingDown && !header.matches(':focus-within'));
+        lastY = y;
+      }
+    };
+
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (!ticking) {
+          ticking = true;
+          requestAnimationFrame(update);
+        }
+      },
+      { passive: true },
+    );
+    desktop.addEventListener('change', update);
+    header.addEventListener('focusin', () => header.classList.remove('is-hidden'));
+    update();
+  }
 </script>
 
 <style>
   .site-header {
-    position: absolute;
+    --focus-ring: var(--color-blue-400);
     inset: 0 0 auto 0;
     z-index: 30;
     color: var(--color-on-dark);
@@ -240,8 +285,42 @@ const waHref =
     margin-top: 1.25rem;
   }
 
+  /* ---- Sticky header (all screens) ---- */
+  .site-header {
+    position: fixed;
+    background-color: transparent;
+    transition:
+      transform 0.3s ease,
+      background-color 0.3s ease,
+      box-shadow 0.3s ease,
+      visibility 0.3s;
+  }
+  .site-header__bar {
+    transition: padding 0.3s ease;
+  }
+  .site-header.is-stuck {
+    background-color: rgb(16 24 30 / 0.94);
+    box-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 0.3);
+    backdrop-filter: blur(8px);
+  }
+  .site-header.is-stuck .site-header__bar {
+    padding-block: 0.75rem;
+  }
+
   /* ---- Breakpoints (from the viewport variations) ---- */
   @media (max-width: 960px) {
+    /* Three equal slots: logo left, hamburger exactly in the middle, language right. */
+    .site-header__bar {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+    }
+    .site-header__actions {
+      justify-self: end;
+    }
+    /* The phone number lives in the opened menu (and the Call Now button) on these screens. */
+    .site-header__actions .phone-link {
+      display: none;
+    }
     .primary-nav {
       display: none;
     }
@@ -254,9 +333,6 @@ const waHref =
   }
 
   @media (max-width: 520px) {
-    .site-header__actions {
-      display: none;
-    }
     .mobile-menu__small-only {
       display: flex;
     }
@@ -265,6 +341,18 @@ const waHref =
   @media (min-width: 961px) {
     .mobile-menu {
       display: none !important;
+    }
+
+    .site-header.is-hidden {
+      transform: translateY(-100%);
+      visibility: hidden;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .site-header,
+    .site-header__bar {
+      transition: none;
     }
   }
 </style>

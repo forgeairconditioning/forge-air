@@ -129,7 +129,10 @@ const showWhatsapp = wa.enabled && !!wa.number;
 
       <button class="btn form__submit" type="submit">{t.send}</button>
 
-      <p class="form__status" data-status role="status" tabindex="-1" hidden></p>
+      {/* The live region exists from page load; screen readers only announce changes inside a region that was already there. */}
+      <div class="form__live" role="status" aria-live="polite">
+        <p class="form__status" data-status tabindex="-1" hidden></p>
+      </div>
 
       <p class="form__note">
         <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -365,6 +368,14 @@ const showWhatsapp = wa.enabled && !!wa.number;
     cursor: progress;
   }
 
+  /* Empty live region would add an extra grid gap; pull it back until a message shows. */
+  .form__live {
+    margin-top: -1.5rem;
+  }
+  .form__live:has(.form__status:not([hidden])) {
+    margin-top: 0;
+  }
+
   .form__status {
     padding: 0.85rem 1rem;
     border-radius: 0.5rem;
@@ -411,7 +422,7 @@ const showWhatsapp = wa.enabled && !!wa.number;
     }
     .field--wide,
     .form__submit,
-    .form__status,
+    .form__live,
     .form__note {
       grid-column: 1 / -1;
     }

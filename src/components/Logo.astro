@@ -30,6 +30,12 @@ const svg = Object.values(logos)[0];
     width: 9.4rem;
     color: var(--color-on-dark);
   }
+  /* Phones: a little smaller, so the header has room for the centered hamburger and the language links. */
+  @media (max-width: 575px) {
+    .logo {
+      width: 8rem;
+    }
+  }
   .logo :global(svg) {
     width: 100%;
     height: auto;

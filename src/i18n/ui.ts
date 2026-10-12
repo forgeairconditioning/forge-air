@@ -19,6 +19,7 @@ const en = {
     reviews: 'Reviews',
     contact: 'Contact',
   },
+  skip: 'Skip to content',
   menu: {
     open: 'Open menu',
     close: 'Close menu',
@@ -78,6 +79,7 @@ const es: typeof en = {
     reviews: 'Reseñas',
     contact: 'Contacto',
   },
+  skip: 'Saltar al contenido',
   menu: {
     open: 'Abrir menú',
     close: 'Cerrar menú',

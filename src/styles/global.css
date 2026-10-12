@@ -63,9 +63,32 @@ a {
   display: none !important;
 }
 
+/* Focus ring: dark blue on light sections, light blue on dark ones (each dark section sets --focus-ring). */
+:root {
+  --focus-ring: var(--color-blue-700);
+}
+
 :focus-visible {
-  outline: 3px solid var(--color-blue-400);
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
+}
+
+/* "Skip to content": invisible until a keyboard user tabs to it. */
+.skip-link {
+  position: absolute;
+  z-index: 100;
+  top: 0.75rem;
+  left: 0.75rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.5rem;
+  background: var(--color-white);
+  color: var(--color-ink-900);
+  font-weight: 700;
+  transform: translateY(-200%);
+}
+.skip-link:focus {
+  transform: none;
+  --focus-ring: var(--color-blue-700);
 }
 
 .container {

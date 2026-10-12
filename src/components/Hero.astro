@@ -36,6 +36,7 @@ const { hero, settings } = Astro.props;
 
 <style>
   .hero {
+    --focus-ring: var(--color-blue-400);
     background: radial-gradient(
       ellipse 70% 90% at 50% 55%,
       var(--color-hero-glow) 0%,
@@ -65,14 +66,19 @@ const { hero, settings } = Astro.props;
     font-family: var(--font-heading);
     font-size: var(--fs-display);
     font-weight: 800;
-    line-height: 0.95;
+    line-height: 1.05;
+  }
+  @media (min-width: 768px) {
+    .hero__title {
+      line-height: 0.95;
+    }
   }
   .hero__line {
     display: block;
     text-wrap: balance;
   }
   .hero__line--accent {
-    margin-top: 1.35rem;
+    margin-top: 0;
     color: var(--color-blue-400);
   }
   @media (min-width: 768px) {
@@ -85,6 +91,11 @@ const { hero, settings } = Astro.props;
     margin-top: 1rem;
     max-width: 38rem;
     color: var(--color-on-dark-soft);
+  }
+  @media (max-width: 767px) {
+    .hero__tagline {
+      display: none;
+    }
   }
 
   .hero__description {

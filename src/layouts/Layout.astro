@@ -3,7 +3,7 @@ import "../styles/global.css";
 // Fontsource self-hosts the font files, so there is no request to Google at runtime.
 import "@fontsource-variable/inter";
 import "@fontsource-variable/sora";
-import type { Lang } from "../i18n/ui";
+import { getUi, type Lang } from "../i18n/ui";
 
 interface Props {
   title: string;
@@ -11,6 +11,7 @@ interface Props {
 }
 
 const { title, lang } = Astro.props;
+const t = getUi(lang);
 ---
 
 <!doctype html>
@@ -24,6 +25,7 @@ const { title, lang } = Astro.props;
     <title>{title}</title>
   </head>
   <body>
+    <a class="skip-link" href="#main">{t.skip}</a>
     <slot />
   </body>
 </html>
