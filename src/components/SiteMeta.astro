@@ -3,7 +3,7 @@
  * Icons and social-sharing tags for <head>. Shared by the layout and the root redirect page.
  * The og:image needs an absolute URL, so it is built from `site` in astro.config.mjs.
  */
-import type { Lang } from '../i18n/ui';
+import { getUi, type Lang } from '../i18n/ui';
 
 interface Props {
   title: string;
@@ -11,6 +11,7 @@ interface Props {
 }
 
 const { title, lang } = Astro.props;
+const description = getUi(lang).meta.description;
 const image = new URL('/og-image.jpg', Astro.site);
 const alt =
   lang === 'es'
@@ -24,7 +25,9 @@ const alt =
 
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="Forge Air Conditioning" />
+<meta name="description" content={description} />
 <meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
 <meta property="og:locale" content={lang === 'es' ? 'es_US' : 'en_US'} />
 <meta property="og:image" content={image.href} />
 <meta property="og:image:width" content="1200" />
