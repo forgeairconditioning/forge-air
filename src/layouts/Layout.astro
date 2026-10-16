@@ -4,6 +4,7 @@ import "../styles/global.css";
 import "@fontsource-variable/inter";
 import "@fontsource-variable/sora";
 import { getUi, type Lang } from "../i18n/ui";
+import SiteMeta from "../components/SiteMeta.astro";
 
 interface Props {
   title: string;
@@ -19,8 +20,7 @@ const t = getUi(lang);
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" href="/favicon.ico" />
+    <SiteMeta title={title} lang={lang} />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
   </head>
