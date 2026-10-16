@@ -3,6 +3,8 @@ import { defineConfig } from 'astro/config';
 
 // https://astro.build/config
 export default defineConfig({
+  // Used to build absolute URLs (og:image). Change to the real domain at launch.
+  site: 'https://forge-air-testlink-d60814.netlify.app',
   i18n: {
     locales: ['en', 'es'],
     defaultLocale: 'en',

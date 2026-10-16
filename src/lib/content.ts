@@ -11,6 +11,7 @@ export interface SiteSettings {
   phone: string;
   callLabel: string;
   footerTagline: string;
+  instagramUrl: string | null;
   whatsapp: {
     enabled: boolean;
     number: string | null;
@@ -100,6 +101,7 @@ const siteSettingsQuery = /* groq */ `
     phone,
     "callLabel": callLabel[$lang],
     "footerTagline": footerTagline[$lang],
+    "instagramUrl": instagramUrl,
     "whatsapp": {
       "enabled": coalesce(whatsapp.enabled, false),
       "number": whatsapp.number,

@@ -1,0 +1,33 @@
+---
+/**
+ * Icons and social-sharing tags for <head>. Shared by the layout and the root redirect page.
+ * The og:image needs an absolute URL, so it is built from `site` in astro.config.mjs.
+ */
+import type { Lang } from '../i18n/ui';
+
+interface Props {
+  title: string;
+  lang: Lang;
+}
+
+const { title, lang } = Astro.props;
+const image = new URL('/og-image.jpg', Astro.site);
+const alt =
+  lang === 'es'
+    ? 'Camioneta de servicio de Forge Air Conditioning'
+    : 'Forge Air Conditioning service van';
+---
+
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="icon" href="/favicon.ico" sizes="32x32" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Forge Air Conditioning" />
+<meta property="og:title" content={title} />
+<meta property="og:locale" content={lang === 'es' ? 'es_US' : 'en_US'} />
+<meta property="og:image" content={image.href} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content={alt} />
+<meta name="twitter:card" content="summary_large_image" />
