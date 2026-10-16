@@ -58,6 +58,9 @@ const en = {
       phone: 'Enter a valid phone number.',
     },
   },
+  social: {
+    instagram: 'Instagram',
+  },
   footer: {
     nav: 'Footer',
     rights: 'All rights reserved.',
@@ -116,6 +119,9 @@ const es: typeof en = {
       email: 'Ingrese un correo electrónico válido.',
       phone: 'Ingrese un número de teléfono válido.',
     },
+  },
+  social: {
+    instagram: 'Instagram',
   },
   footer: {
     nav: 'Pie de página',

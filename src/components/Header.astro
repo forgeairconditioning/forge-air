@@ -27,6 +27,7 @@ const waHref =
   whatsapp.enabled && whatsapp.number
     ? whatsappHref(whatsapp.number, whatsapp.message ?? undefined)
     : null;
+const instagramUrl = settings.instagramUrl;
 ---
 
 <header class="site-header">
@@ -54,10 +55,25 @@ const waHref =
 
     <div class="site-header__actions">
       <LanguageSwitcher lang={lang} />
-      <a class="phone-link" href={phoneHref}>
-        <Icon name="phone" />
-        <span>{settings.phone}</span>
-      </a>
+      <div class="site-header__contact">
+        <a class="phone-link" href={phoneHref}>
+          <Icon name="phone" />
+          <span>{settings.phone}</span>
+        </a>
+        {
+          instagramUrl && (
+            <a
+              class="social-link"
+              href={instagramUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={t.social.instagram}
+            >
+              <Icon name="instagram" />
+            </a>
+          )
+        }
+      </div>
     </div>
   </div>
 
@@ -69,11 +85,24 @@ const waHref =
         </ul>
       </nav>
 
-      <div class="mobile-menu__small-only">
+      <div class:list={['mobile-menu__small-only', instagramUrl && 'has-social']}>
         <a class="phone-link" href={phoneHref}>
           <Icon name="phone" />
           <span>{settings.phone}</span>
         </a>
+        {
+          instagramUrl && (
+            <a
+              class="social-link"
+              href={instagramUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={t.social.instagram}
+            >
+              <Icon name="instagram" />
+            </a>
+          )
+        }
       </div>
 
       <div class="mobile-menu__buttons">
@@ -221,6 +250,12 @@ const waHref =
     gap: 1.25rem;
   }
 
+  .site-header__contact {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
   .phone-link {
     display: inline-flex;
     align-items: center;
@@ -229,6 +264,22 @@ const waHref =
     font-weight: 700;
     color: var(--color-blue-400);
     white-space: nowrap;
+  }
+
+  /* Instagram icon: sits right after the phone number (header) and in the opened menu. */
+  .social-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    font-size: 1.25rem;
+    color: var(--color-blue-400);
+    transition: color var(--transition);
+  }
+  .social-link:hover {
+    color: #fff;
   }
 
   /* ---- Hamburger button (hidden on desktop) ---- */
@@ -284,9 +335,16 @@ const waHref =
   .mobile-menu__small-only {
     display: none;
     align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
+    justify-content: flex-start;
+    gap: 0.75rem;
     padding-block: 1.25rem 0.25rem;
+  }
+  /* Without an Instagram link this row only exists on small phones (it holds the phone number). */
+  .mobile-menu__small-only.has-social {
+    display: flex;
+  }
+  .mobile-menu__small-only.has-social .phone-link {
+    display: none;
   }
   .mobile-menu__buttons {
     display: grid;
@@ -327,7 +385,7 @@ const waHref =
       justify-self: end;
     }
     /* The phone number lives in the opened menu (and the Call Now button) on these screens. */
-    .site-header__actions .phone-link {
+    .site-header__contact {
       display: none;
     }
     .primary-nav {
@@ -344,6 +402,9 @@ const waHref =
   @media (max-width: 520px) {
     .mobile-menu__small-only {
       display: flex;
+    }
+    .mobile-menu__small-only.has-social .phone-link {
+      display: inline-flex;
     }
   }
 
