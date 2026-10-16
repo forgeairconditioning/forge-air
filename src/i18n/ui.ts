@@ -10,6 +10,8 @@ export const defaultLang: Lang = 'en';
 const en = {
   meta: {
     title: 'Forge Air Conditioning | AC Repair & Installation in Miami',
+    description:
+      'Fast AC repair & installation in Miami-Dade and Broward. 24/7 emergency service. Get your free estimate today.',
   },
   nav: {
     label: 'Main',
@@ -73,6 +75,8 @@ const en = {
 const es: typeof en = {
   meta: {
     title: 'Forge Air Conditioning | Reparación e instalación de A/C en Miami',
+    description:
+      'Reparación e instalación de A/C en Miami-Dade y Broward. Servicio de emergencia 24/7. Solicite su estimado gratis.',
   },
   nav: {
     label: 'Principal',
